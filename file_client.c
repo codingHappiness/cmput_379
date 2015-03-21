@@ -58,11 +58,17 @@ int main(int argc, char ** argv)
 	memset((char *) &si_me, 0, sizeof(si_me));
 	si_me.sin_family = AF_INET;
 	si_me.sin_port = htons(atoi(argv[2]));
-	si_me.sin_addr.s_addr = htonl(inet_addr(argv[1]));
+	si_me.sin_addr.s_addr = inet_addr(argv[1]);
 	
 	adr_clnt.sin_family = AF_INET;
 	adr_clnt.sin_port = htons(INADDR_ANY);
 	adr_clnt.sin_addr.s_addr = htonl(0);
+
+	if ( bind(s, (struct sockaddr*)&adr_clnt, sizeof(adr_clnt)) == -1)
+	{
+		printf("Error in binding the socket\n");
+		return 2;
+	}
 
 	/*request file from server*/
 	sendto(s, argv[3], sizeof(argv[3]),0, \
@@ -76,7 +82,7 @@ int main(int argc, char ** argv)
 	while(1) {
 		
 		/*run while receiving packet*/
-		while (recvfrom(s, buf, BUFLEN, 0, (struct sockaddr*)&si_me, &len_inet)!=-1){
+		while (recvfrom(s, buf, BUFLEN, 0, NULL, NULL)!=-1){
 			printf("We have received a response from the server!\n");
 			for (i = 0; i < sizeof(buf); i++){
 			
